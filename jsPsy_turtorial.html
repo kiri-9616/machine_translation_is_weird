@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../jspsych/dist/jspsych.js"></script>
+        <script src="../jspsych/dist/plugin-html-keyboard-response.js"></script>
+        <script src="../jspsych/dist/plugin-survey-text.js"></script>
+        <script src="../jspsych/dist/plugin-survey-likert.js"></script>
+        <link rel="stylesheet" href="../jspsych/dist/jspsych.css">
+    </head>
+    <body></body>
+    <script>
+        let jsPsych = initJsPsych({
+            on_finish: function(){
+                jsPsych.data.displayData();
+                let all_data = jsPsych.data.get();
+            }
+        });
+
+        /*
+        type = どのような形式の質問か
+            jsPsychSurveyText = 自由記述式の質問
+
+        questions = 質問について。
+            連想配列を複数作ることで、複数質問を作成可能
+            prompt = 表示する質問内容
+            placeholder = 回答フォームに何を回答して欲しいか表示する
+            rows = 自由記述フォームの行数
+            columns = 自由記述フォームの列数
+            required = 必須質問かどうか。　（答えないと次に進めない）
+            name = 答えの保存名
+
+        randomize_question_order = 質問が複数あるとき、順番をランダムに変更するか　（boolean）
+        */
+
+        let page1 = {
+            type: jsPsychSurveyText,
+            questions: [
+                {prompt: 'hogehoge', rows: 2, columns: 15, required: true, name: 'hogehoge'},
+                {prompt: 'hoge', placeholder: 'hoge', rows: 10, columns: 20, required: true, name: 'hoge'}
+            ],
+            randomize_question_order: true
+        };
+
+        let page2 = {
+            type: jsPsychSurveyText,
+            questions: [
+                {prompt: "hogehogehoge", rows: 2, columns: 15, required: true, name: "hogehogehoge"}
+            ]
+        };
+
+
+        /*
+        type = 質問形式
+            jsPsychSurveyLikert = リッカート指標
+
+        questions = 質問内容
+            prompt = 表示される質問
+            name = 回答の保存名
+            labels = 尺度
+            required = 回答必須にする
+
+        randomize_question_order = 質問の順番のランダム化
+
+        scale_width = リッカート指標の大きさ
+        */
+
+        let scale = ["hoge1","hoge2","hoge3"];
+
+        let likert_page1 = {
+            type: jsPsychSurveyLikert,
+            questions: [
+                {prompt: "I like vegetables.", name: 'Vegetables', labels: scale, required: true},
+                {prompt: "I like fruit.", name: 'Fruit', labels: scale, required: true}
+            ],
+            randomize_question_order: true,
+            scale_width: 500
+        };
+
+        jsPsych.run([page1,page2,likert_page1]) // 提示順序の指定
+    </script>
+</html>
