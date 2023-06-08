@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="../jspsych/dist/jspsych.js"></script>
+        <script src="../jspsych/dist/plugin-html-keyboard-response.js"></script>
+        <script src="../jspsych/dist/plugin-survey-text.js"></script>
+        <script src="../jspsych/dist/plugin-survey-likert.js"></script>
+        <script src="../jspsych/dist/plugin-html-button-response.js"></script>
+        <script src="../jspsych/dist/plugin-preload.js"></script>
+        <link rel="stylesheet" href="../jspsych/dist/jspsych.css">
+    </head>
+    <body></body>
+    <script>
+        let jsPsych = initJsPsych({
+            on_finish: function(){
+                jsPsych.data.displayData();
+                let all_data = jsPsych.data.get();
+            }
+        });
+
+        /*
+        type = どのような形式の質問か
+            jsPsychSurveyText = 自由記述式の質問
+
+        questions = 質問について。
+            連想配列を複数作ることで、複数質問を作成可能
+            prompt = 表示する質問内容
+            placeholder = 回答フォームに何を回答して欲しいか表示する
+            rows = 自由記述フォームの行数
+            columns = 自由記述フォームの列数
+            required = 必須質問かどうか。　（答えないと次に進めない）
+            name = 答えの保存名
+
+        randomize_question_order = 質問が複数あるとき、順番をランダムに変更するか　（boolean）
+        */
+
+        text_context = [
+            {original:"本来、人間は、自分の行動を他人に認知してもらうことよって生きがいを覚える動物であった。",
+            translated:"人は本質的に、自分がしたことに対して他人から認められると、自分が有益な人生を送っていると感じます。"},
+
+            {original:"このソフトは新しい技術を身に付けるためのすぐれたツールです。",
+            translated:"このソフトウェアは、新しいスキルを学ぶための優れたツールです。"},
+
+            {original:"遺体は地表の下の永久凍土に埋められていたため、ほとんど損傷を受けていないという。",
+            translated:"遺体は凍土の奥深くに埋められていたため、ほぼ無傷だった。"},
+
+            {original:"聞く耳もたぬが魚(うお)の性(さが)",
+            translated:"彼らはアドバイスを聞き入れませんでした。"},
+
+            {original:"嫌われたくないからみんなと同じように行動する。",
+            translated:"嫌われたくないから、みんなと同じ行動をしてしまうのです。"},
+
+            {original:"ドクター・スタンデールは、何とか乱れた心に落ち着きを取り戻した。",
+            translated:"スターンデール博士は努力の末、乱れた平静を取り戻した。"},
+
+            {original:"未永理事長は次のように説明してくれた。「ロータリー米山記念奨学会の一番の柱は精神面でのケア(カウンセラー制度)です。",
+            translated:"末永理事長は、「ロータリー米山記念財団の主な事業はメンタルヘルスケア（カウンセリングシステム）です。"},
+
+            {original:"しかし、カンボジアの子どもたちは、勉強したくても学用品すら足りないことがほとんど。",
+            translated:"しかし、多くのカンボジアの子供たちが勉強したいと思っていても、教育用品が十分でないことがよくあります。"},
+
+            {original:"アムネスティ・インターナショナルはテイチョウ、ミイミイとアウントゥの身の安全について非常に憂慮している。彼らは拷間や虐待を受ける危険が非常に高いと考える。",
+            translated:"アムネスティ・インターナショナルは、拷問や虐待の重大な危険にさらされているタイ・キュウェさん、ミー・ミーさん、アウン・トゥーさんの安全を真剣に懸念している。"},
+
+            {original:"車内はとても蒸し暑く、子どもが泣きだしたりした。",
+            translated:"電車の中はとても湿気が多かったので、子供たちは泣き始めました。"},
+
+            {original:"もし愛していたら、そんなことはしたり、言ったりするとは思えないようなことをあなたはたくさんしているのです。",
+            translated:"私を愛している人ならしなかっただろうし、言わなかったと思うことを、あなたがしてくれたことはたくさんあります。"},
+
+            {original:"ただし夕方であって、街路には灯火が点いていた。",
+            translated:"しかし、夕方だったので、通りはライトアップされていました。"},
+
+            {original:"あるアーキテクチャでは別なプロファイルに完全に切替えるためには、やや作業が必要です。",
+            translated:"一部のアーキテクチャでは、あるプロファイルから別のプロファイルに変換するために、もう少し多くのアクションを完了する必要があります。"},
+
+            {original:"いまや世界の穀物市場を支配しているのは米国だ。",
+            translated:"米国は現在でも世界の穀物市場を支配している。"},
+
+            {original:"9回の表に前日250球を投げた松坂が登場すると、球場は異常な興奮状態に包まれた。",
+            translated:"前日２５０球を投げたばかりの松坂が９回表にグラウンドに登場すると、観衆は異様な感覚に変わった。"},
+
+        ];
+
+        //質問を作成する関数を纏めたオブジェクト
+        create_qusetion = {
+            /*
+            自由記述の場合
+
+            @param array : array 作られたページを保存する配列
+            @param question : string 質問内容
+            @param save_name : string 保存番号＆名前
+            */
+
+            "text" : function(array,question,save_name){
+                array.push({
+                    type: jsPsychSurveyText,
+                    questions: [
+                        {prompt: question, rows: 10, columns: 40, required: true, name: 'text'+ save_name},
+                    ]
+                })
+            },
+
+            /*
+            ボタンの場合
+
+            @param array : array 作られたページを保存する配列
+            @param question : string 質問内容
+            @param context : string 質問対象の文
+            @param bottons : array ボタンの内容
+            @param save_name : string 保存番号＆名前
+            */
+            
+            "botton" : function(array,question,context,bottons,save_name){
+                array.push({
+                    type: jsPsychHtmlButtonResponse,
+                    stimulus: '<p>' + context + '</p>',
+                    choices: bottons,
+                    prompt: "<p>" + question + "</p>",
+                    name: "botton" + save_name
+                });
+
+            },
+
+            /*
+            リッカートの場合
+
+            @param array : array 作られたページを保存する配列
+            @param question : string 質問内容
+            @param scale : array リッカートスケールの中身
+            @param save_name : string 保存番号＆名前
+            */
+
+            "likert" : function(array,question,scale,save_name){
+                array.push({
+                    type: jsPsychSurveyLikert,
+                    questions: [
+                        {prompt: question, name: 'likert1', labels: scale, required: true, name:"likert"+save_name},
+                    ],
+                    scale_width: 500
+                });
+            }
+
+        };
+
+        let text_pages = [];
+
+
+
+        //グループ１ 機械 or 人間
+        let botton_pages = [];
+        let bottons = ["はい","いいえ"];
+
+        for(let i = 0; i< text_context.length; i++){
+            console.log(text_context[i].original)
+            create_qusetion["botton"](botton_pages, "この文章は機械翻訳されたものですか?", text_context[i].original, bottons, "original"+i);
+        }
+
+        console.log(botton_pages)
+
+        //質問ページの作成
+        // for(let i = 0; i<text_context.length; i++){
+        //     create_qusetion["text"](text_pages,"question",text_context[i]["original"],i)
+        // }
+
+
+        jsPsych.run(botton_pages) // 提示順序の指定
+    </script>
+</html>

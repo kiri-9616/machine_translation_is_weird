@@ -52,6 +52,25 @@
 
         /*
         type = 質問形式
+            jsPsychHtlButtonResponse
+
+        stimulus = 質問対象
+        choices = ボタン内容
+        prompt = 質問内容
+        */
+
+        let button_pages = [];
+
+        button_pages.push({
+            type: jsPsychHtmlButtonResponse,
+            stimulus: '<p style="color: red; font-size: 48px; font-weight: bold;">GREEN</p>',
+            choices: ['Green', 'Blue', 'Red'],
+            prompt: "<p>What color is this word?</p>"
+        });
+
+
+        /*
+        type = 質問形式
             jsPsychSurveyLikert = リッカート指標
 
         questions = 質問内容
