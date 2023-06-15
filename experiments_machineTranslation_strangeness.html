@@ -8,13 +8,14 @@
         <script src="../jspsych/dist/plugin-survey-likert.js"></script>
         <script src="../jspsych/dist/plugin-html-button-response.js"></script>
         <script src="../jspsych/dist/plugin-preload.js"></script>
+        <script src="../jspsych/dist/plugin-html-keyboard-response.js"></script>
         <link rel="stylesheet" href="../jspsych/dist/jspsych.css">
     </head>
     <body></body>
     <script>
         let jsPsych = initJsPsych({
             on_finish: function(){
-                jsPsych.data.displayData();
+                //jsPsych.data.displayData();
                 let all_data = jsPsych.data.get();
             }
         });
@@ -83,6 +84,21 @@
 
         ];
 
+        //配列のシャッフル関数
+        function arrayShuffle(array) {
+            for(let i = (array.length - 1); 0 < i; i--){
+
+                // 0〜(i+1)の範囲で値を取得
+                let r = Math.floor(Math.random() * (i + 1));
+
+                // 要素の並び替えを実行
+                let tmp = array[i];
+                array[i] = array[r];
+                array[r] = tmp;
+            }
+            return array;
+        }
+
         //質問を作成する関数を纏めたオブジェクト
         create_qusetion = {
             /*
@@ -118,7 +134,8 @@
                     stimulus: '<p>' + context + '</p>',
                     choices: bottons,
                     prompt: "<p>" + question + "</p>",
-                    name: "botton" + save_name
+                    name: "botton " + save_name,
+                    data: {category: save_name}
                 });
 
             },
@@ -132,13 +149,13 @@
             @param save_name : string 保存番号＆名前
             */
 
-            "likert" : function(array,question,scale,save_name){
+            "likert" : function(array,question,content,scale,save_name){
                 array.push({
                     type: jsPsychSurveyLikert,
                     questions: [
-                        {prompt: question, name: 'likert1', labels: scale, required: true, name:"likert"+save_name},
+                        {prompt: question + "<br><br>" + content, labels: scale, required: true, name:"likert "+save_name},
                     ],
-                    scale_width: 500
+                    scale_width: 1000
                 });
             }
 
@@ -148,23 +165,56 @@
 
 
 
-        //グループ１ 機械 or 人間
+        //グループ判断 機械 or 人間
         let botton_pages = [];
-        let bottons = ["はい","いいえ"];
+        let bottons = ["人間","機械"];
+
+        //グループ評定 ４段階評価
+        let likert_pages = [];
+        let scale = ["全く違和感を感じない","少し違和感を感じる","まあまあ違和感を感じる","とても違和感を感じる"]
+
 
         for(let i = 0; i< text_context.length; i++){
-            console.log(text_context[i].original)
-            create_qusetion["botton"](botton_pages, "この文章は機械翻訳されたものですか?", text_context[i].original, bottons, "original"+i);
+            //console.log(text_context[i].original)
+            //ボタンベースのページ作成
+            create_qusetion["botton"](botton_pages, "この文章は機械翻訳されたものですか?人間が翻訳した文章ですか？", text_context[i].original, bottons, "original"+i);
+            create_qusetion["botton"](botton_pages, "この文章は機械翻訳されたものですか?人間が翻訳した文章ですか？", text_context[i].translated, bottons, "translated"+i);
+
+            //リッカーとベースのページ作成
+            create_qusetion["likert"](likert_pages, "どれくらい違和感を感じますか？", text_context[i].original, scale, "original"+i);
+            create_qusetion["likert"](likert_pages, "どれくらい違和感を感じますか？", text_context[i].translated, scale, "translated"+i);
         }
 
-        console.log(botton_pages)
+        //ボタンの最初のページ
+        let botton_first = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "これから提示される文章は、英語文章を人手、あるいは機械翻訳機を用いて日本語訳した文章です。<br>各文章に対し、これは人が翻訳したものか機械翻訳したものかを判断し答えてください。<br><br>キーボード入力で実験を開始します。"
+        };
+        //リッカーとの最初のページ
+        let likert_first = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "これから提示される文章は、英語文章を日本語訳した文章です。<br>各文章に対し、どれ程違和感を感じるかを答えてください。<br><br>キーボード入力で実験を開始します。"
+        }
 
-        //質問ページの作成
-        // for(let i = 0; i<text_context.length; i++){
-        //     create_qusetion["text"](text_pages,"question",text_context[i]["original"],i)
-        // }
+        botton_pages = arrayShuffle(botton_pages);
+        likert_pages = arrayShuffle(likert_pages);
+
+        botton_pages.unshift(botton_first)
+        likert_pages.unshift(likert_first)
+
+        var ending = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<p><b>全ての試行が終わりました。今回の作業完了コードは<strong>「4628」</strong>です。</b></p>"+
+            "<p><b>この4桁の数字を，Yahoo!クラウドソーシングの設問への回答として<u>半角で</u>入力して下さい。</b></p>"+
+            "<p><b>「閉じる」ボタンを押すとこのタブが閉じます。ありがとうございました。</b></p>",
+            choices: ["閉じる"]
+        };
 
 
-        jsPsych.run(botton_pages) // 提示順序の指定
+        let run_pages = botton_pages.concat(likert_pages,ending)
+        //console.log(botton_pages);
+
+
+        jsPsych.run(run_pages); // 提示順序の指定
     </script>
 </html>
