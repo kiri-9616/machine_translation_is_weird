@@ -109,11 +109,11 @@
             @param save_name : string 保存番号＆名前
             */
 
-            "text" : function(array,question,save_name){
+            "text" : function(array,question,context,save_name){
                 array.push({
                     type: jsPsychSurveyText,
                     questions: [
-                        {prompt: question, rows: 10, columns: 40, required: true, name: 'text'+ save_name},
+                        {prompt: question +"<br>"+ context, rows: 10, columns: 40, required: false, name: 'text_'+ save_name},
                     ]
                 })
             },
@@ -134,8 +134,7 @@
                     stimulus: '<p>' + context + '</p>',
                     choices: bottons,
                     prompt: "<p>" + question + "</p>",
-                    name: "botton " + save_name,
-                    data: {category: save_name}
+                    data: {category:  "botton_" + save_name}
                 });
 
             },
@@ -153,16 +152,13 @@
                 array.push({
                     type: jsPsychSurveyLikert,
                     questions: [
-                        {prompt: question + "<br><br>" + content, labels: scale, required: true, name:"likert "+save_name},
+                        {prompt: question + "<br><br>" + content, labels: scale, required: true, name:"likert_"+save_name},
                     ],
                     scale_width: 1000
                 });
             }
 
         };
-
-        let text_pages = [];
-
 
 
         //グループ判断 機械 or 人間
@@ -173,6 +169,8 @@
         let likert_pages = [];
         let scale = ["全く違和感を感じない","少し違和感を感じる","まあまあ違和感を感じる","とても違和感を感じる"]
 
+        //自由記述
+        let text_pages = [];
 
         for(let i = 0; i< text_context.length; i++){
             //console.log(text_context[i].original)
@@ -183,6 +181,10 @@
             //リッカーとベースのページ作成
             create_qusetion["likert"](likert_pages, "どれくらい違和感を感じますか？", text_context[i].original, scale, "original"+i);
             create_qusetion["likert"](likert_pages, "どれくらい違和感を感じますか？", text_context[i].translated, scale, "translated"+i);
+
+            //自由記述のページ作成
+            create_qusetion["text"](text_pages, "次の文の違和感を感じた点を教えてください。無ければ空欄で構いません。", text_context[i].original, "original"+i);
+            create_qusetion["text"](text_pages, "次の文の違和感を感じた点を教えてください。無ければ空欄で構いません。", text_context[i].translated, "translated"+i);
         }
 
         //ボタンの最初のページ
@@ -190,17 +192,34 @@
             type: jsPsychHtmlKeyboardResponse,
             stimulus: "これから提示される文章は、英語文章を人手、あるいは機械翻訳機を用いて日本語訳した文章です。<br>各文章に対し、これは人が翻訳したものか機械翻訳したものかを判断し答えてください。<br><br>キーボード入力で実験を開始します。"
         };
+
+        //ボタンのちゃんとやってるか確認ページ
+        create_qusetion["botton"](botton_pages, "この問題では左を選択してください。","",bottons, "left");
+        create_qusetion["botton"](botton_pages, "この問題では右を選択してください。","",bottons, "right");
+
         //リッカーとの最初のページ
         let likert_first = {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: "これから提示される文章は、英語文章を日本語訳した文章です。<br>各文章に対し、どれ程違和感を感じるかを答えてください。<br><br>キーボード入力で実験を開始します。"
         }
 
+        //リッカートをちゃんとやっているか確認ページ
+        create_qusetion["likert"](likert_pages,"右から２番目を選択してください。","",scale,"confirm");
+
+        //自由記述の最初のページ
+        let text_first = {
+            type: jsPsychHtmlKeyboardResponse,
+            stimulus: "今までの文章に対する違和感について自由に記述してください。無ければ空欄で構いません。<br><br>キーボード入力で実験を開始します。"
+        }
+
+
         botton_pages = arrayShuffle(botton_pages);
         likert_pages = arrayShuffle(likert_pages);
+        text_pages = arrayShuffle(text_pages);
 
-        botton_pages.unshift(botton_first)
-        likert_pages.unshift(likert_first)
+        botton_pages.unshift(botton_first);
+        likert_pages.unshift(likert_first);
+        text_pages.unshift(text_first);
 
         var ending = {
             type: jsPsychHtmlButtonResponse,
@@ -211,10 +230,11 @@
         };
 
 
-        let run_pages = botton_pages.concat(likert_pages,ending)
+        let run_botton_pages = botton_pages.concat(text_pages,ending)
+        let run_likert_pages = likert_pages.concat(text_pages,ending)
         //console.log(botton_pages);
 
 
-        jsPsych.run(run_pages); // 提示順序の指定
+        jsPsych.run(run_likert_pages); // 提示順序の指定
     </script>
 </html>
