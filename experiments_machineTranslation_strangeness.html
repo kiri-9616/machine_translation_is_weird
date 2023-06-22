@@ -187,6 +187,29 @@
             create_qusetion["text"](text_pages, "次の文の違和感を感じた点を教えてください。無ければ空欄で構いません。", text_context[i].translated, "translated"+i);
         }
 
+        //最初のページ
+        var instruction_1 = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<div align='left'><p>この実験では，<strong>英語文を人手，あるいは機械翻訳機を用いて日本語訳した文章に対し，人が翻訳したものか機械翻訳したものか</strong>を判断していただきます。</p>" + 
+                        "<p>下記に諸事項について説明をいたします。</p>" + 
+                        "<br>" +
+                        "<p><u>データについて</u></p>" + 
+                        "<p>前提として<strong>得られたデータは匿名化</strong>して処理致します。</p>" +
+                        "<p>取得したデータや個人情報は研究実施者により厳重に管理され，研究目的以外には使用致しません。</p>" +
+                        "<p>実験結果は国内外の学会や論文で発表することがありますが，データは統計的な処理などを行いますので，個人がデータから特定されることはありません。</p>" +
+                        "<p>データについてはオンライン上に公開する可能性もありますが，匿名化処理を致しますので，この場合も個人が特定されることはございません。</p>" +
+                        "<br>" +
+                        "<p><u>実験参加および中断について</u></p>" + 
+                        "<p><strong>本実験へのご参加はあなたの自由意思に基づいて決定して下さい</strong>。</p>" +
+                        "<p>参加に同意した後に参加途中で撤回したい場合，そのままブラウザを閉じていただけると同意撤回したものとみなします。</p>" +
+                        "<p>参加途中で参加を撤回された場合は，そのデータをその後の研究で使用いたしません。</p>" +
+                        "<br>" +
+                        "<p>以上の点をご理解の上，実験参加に同意頂ける場合はスペースキーを押して次のページに進んでください。</p>" +
+                        "<p>実験参加をされない場合は，ブラウザを閉じてください。</p><div>",
+            choices: ['次へ'],
+            post_trial_gap: 1000
+        };
+
         //ボタンの最初のページ
         let botton_first = {
             type: jsPsychHtmlKeyboardResponse,
@@ -196,6 +219,30 @@
         //ボタンのちゃんとやってるか確認ページ
         create_qusetion["botton"](botton_pages, "この問題では左を選択してください。","",bottons, "left");
         create_qusetion["botton"](botton_pages, "この問題では右を選択してください。","",bottons, "right");
+
+        //リッカーとの説明
+        //最初のページ
+        var instruction_2 = {
+            type: jsPsychHtmlButtonResponse,
+            stimulus: "<div align='left'><p>この実験では，<strong>英語文を日本語訳した文章に対し，どれ程違和感を感じるか</strong>を答えていただきます。</p>" + 
+                        "<p>下記に諸事項について説明をいたします。</p>" + 
+                        "<br>" +
+                        "<p><u>データについて</u></p>" + 
+                        "<p>前提として<strong>得られたデータは匿名化</strong>して処理致します。</p>" +
+                        "<p>取得したデータや個人情報は研究実施者により厳重に管理され，研究目的以外には使用致しません。</p>" +
+                        "<p>実験結果は国内外の学会や論文で発表することがありますが，データは統計的な処理などを行いますので，個人がデータから特定されることはありません。</p>" +
+                        "<p>データについてはオンライン上に公開する可能性もありますが，匿名化処理を致しますので，この場合も個人が特定されることはございません。</p>" +
+                        "<br>" +
+                        "<p><u>実験参加および中断について</u></p>" + 
+                        "<p><strong>本実験へのご参加はあなたの自由意思に基づいて決定して下さい</strong>。</p>" +
+                        "<p>参加に同意した後に参加途中で撤回したい場合，そのままブラウザを閉じていただけると同意撤回したものとみなします。</p>" +
+                        "<p>参加途中で参加を撤回された場合は，そのデータをその後の研究で使用いたしません。</p>" +
+                        "<br>" +
+                        "<p>以上の点をご理解の上，実験参加に同意頂ける場合はスペースキーを押して次のページに進んでください。</p>" +
+                        "<p>実験参加をされない場合は，ブラウザを閉じてください。</p><div>",
+            choices: ['次へ'],
+            post_trial_gap: 1000
+        };
 
         //リッカーとの最初のページ
         let likert_first = {
@@ -221,6 +268,9 @@
         likert_pages.unshift(likert_first);
         text_pages.unshift(text_first);
 
+        botton_pages.unshift(instruction_1);
+        likert_pages.unshift(instruction_2);
+
         var ending = {
             type: jsPsychHtmlButtonResponse,
             stimulus: "<p><b>全ての試行が終わりました。今回の作業完了コードは<strong>「4628」</strong>です。</b></p>"+
@@ -230,8 +280,8 @@
         };
 
 
-        let run_botton_pages = botton_pages.concat(text_pages,ending)
-        let run_likert_pages = likert_pages.concat(text_pages,ending)
+        let run_botton_pages = botton_pages.concat(text_pages,ending);
+        let run_likert_pages = likert_pages.concat(text_pages,ending);
         //console.log(botton_pages);
 
 
